@@ -1,0 +1,9 @@
+export RABBITMQ_HOST=rabbitmq_url
+export RABBITMQ_PORT=rabbitmq_management_port (15672)
+export RABBITMQ_USER=rabbitmq_user
+export RABBITMQ_PASS=rabbitmq_password
+export DB_NAME=postgres_db_name
+export DB_USER=postgres_db_user
+export DB_PASS=postgres_db_password
+export DB_HOST=postgres_db_url
+export DB_PORT=postgres_db_port

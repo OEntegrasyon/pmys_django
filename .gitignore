@@ -1,0 +1,20 @@
+# pycache
+__pycache__/
+
+# migrations
+migrations/
+
+# venv
+venv/
+
+# settings.py
+settings.py
+
+# set_env.sh
+set_env.sh
+
+# vscode
+.vscode/
+
+# nohup
+nohup.out
