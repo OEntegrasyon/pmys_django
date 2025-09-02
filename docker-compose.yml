@@ -1,0 +1,94 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-giys_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-giys_passwd}
+      POSTGRES_DB: ${POSTGRES_DB:-giys_db}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h 127.0.0.1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      pmys_network:
+        ipv4_address: 172.70.0.3          
+  
+  openldap:
+    image: osixia/openldap:latest
+    container_name: openldap
+    environment:
+      LDAP_BASE_DN: dc=example,dc=org
+      LDAP_BIND_DN: cn=admin,dc=example,dc=org
+      LDAP_BIND_PASS: adminpassword
+      LDAP_ORGANISATION: "Example Organization"
+      LDAP_DOMAIN: "example.org"
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_TLS: "false"
+    volumes:
+      - ./ldap/organize.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/50-bootstrap.ldif
+    networks:
+      pmys_network:
+        ipv4_address: 172.70.0.4
+    ports:
+      - "389:389"
+    command: --copy-service
+    restart: unless-stopped
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: openldap
+      PHPLDAPADMIN_HTTPS: "false"
+    networks:
+      pmys_network:
+        ipv4_address: 172.70.0.5
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    depends_on:
+      - openldap
+
+
+  # rabbitmq:
+  #   image: rabbitmq:4-management-alpine
+  #   container_name: rabbitmq-macvlan
+  #   restart: unless-stopped
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-giys}
+  #     RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-giys}
+  #     RABBITMQ_NODENAME: rabbit@rabbitmq-macvlan
+  #   volumes:
+  #     - rmq_data:/var/lib/rabbitmq
+  #   # Macvlan ağı ve sabit IP
+  #   networks:
+  #     lan_macvlan:
+  #       ipv4_address: ${RABBITMQ_MACVLAN_IP:-192.168.1.60}
+  #   # Not: Macvlan’da genelde port publish gerekmez; kapsül zaten LAN IP'siyle çıkar.
+  #   healthcheck:
+  #     test: ["CMD", "rabbitmq-diagnostics", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+
+volumes:
+  pg_data:
+  #rmq_data:
+
+networks:
+  pmys_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.70.0.0/24
+  # Önceden oluşturduğumuz macvlan ağını external olarak ekliyoruz
+  #lan_macvlan:
+  #  external: true

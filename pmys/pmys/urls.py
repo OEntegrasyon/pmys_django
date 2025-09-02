@@ -22,4 +22,5 @@ urlpatterns = [
     path('policy/', include('policy.urls')),
     path('user/', include('user.urls')),
     path('client/', include('client.urls')),
+    path("ldap/api/", include("directory.api_urls")),
 ]

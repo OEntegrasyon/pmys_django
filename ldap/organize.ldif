@@ -1,0 +1,45 @@
+# bilgi-islem
+dn: ou=bilgi-islem,dc=example,dc=org
+objectClass: organizationalUnit
+ou: bilgi-islem
+
+# admin kullanıcısı
+dn: uid=admin,ou=bilgi-islem,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: admin
+sn: admin
+uid: admin
+userPassword: admin123
+uidNumber: 9999
+gidNumber: 5000
+homeDirectory: /home/admin
+loginShell: /bin/bash
+shadowMax: 99999
+shadowWarning: 7
+
+# cancan kullanıcısı
+dn: uid=cancan,cn=cancan-grup,ou=bilgi-islem,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Caner Aysan
+sn: Aysan
+givenName: Caner
+uid: cancan
+userPassword: {SSHA}Y659XHcWbn1j86606hhmHvPtwGZt+qwY
+uidNumber: 10000
+gidNumber: 5000
+gecos: Caner Aysan
+loginShell: /bin/bash
+homeDirectory: /home/cancan
+shadowMax: 99999
+shadowWarning: 7
+
+# cancan için grup
+dn: cn=cancan-grup,ou=bilgi-islem,dc=example,dc=org
+objectClass: groupOfNames
+cn: cancan-grup
+description: Caner Aysan'a ait test grubu
+member: uid=cancan,ou=bilgi-islem,dc=example,dc=org
