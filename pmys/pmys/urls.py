@@ -23,4 +23,5 @@ urlpatterns = [
     path('user/', include('user.urls')),
     path('client/', include('client.urls')),
     path("ldap/api/", include("directory.api_urls")),
+    path("laps/api/", include("laps.urls")),
 ]

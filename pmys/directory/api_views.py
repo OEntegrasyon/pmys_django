@@ -5,6 +5,12 @@ from django.conf import settings
 from .utils import b64, b64d
 from . import services as svc
 
+# Küçük yardımcı: None veya non-string -> "" (stringe çevir)
+def _str_or_empty(v):
+    if v is None:
+        return ""
+    return v if isinstance(v, str) else str(v)
+
 class TreeView(APIView):
     def get(self, request):
         return Response(svc.load_tree())
@@ -14,12 +20,15 @@ class OrganizationsView(APIView):
     def post(self, request):
         name = request.data.get("name")
         if not name: return Response({"detail":"name gerekli"}, status=400)
-        dn = svc.create_organization(name, request.data.get("description",""))
+        desc = _str_or_empty(request.data.get("description", ""))
+        dn = svc.create_organization(name, desc)
         return Response({"dn": dn}, status=201)
 
 class OrganizationDetailView(APIView):
     def put(self, request, b64dn: str):
-        svc.update_organization(b64d(b64dn), request.data.get("name"), request.data.get("description"))
+        name = request.data.get("name")  # name'i boş bırakmak 'dokunma' semantiği için None kalabilir
+        desc = _str_or_empty(request.data.get("description", ""))
+        svc.update_organization(b64d(b64dn), name, desc)
         return Response({"ok": True})
     def delete(self, request, b64dn: str):
         svc.delete_organization(b64d(b64dn))
@@ -30,13 +39,17 @@ class GroupsView(APIView):
     def post(self, request):
         org_dn = request.data.get("organizationDn")
         name = request.data.get("name")
-        if not org_dn or not name: return Response({"detail":"organizationDn ve name gerekli"}, status=400)
-        dn = svc.create_group(org_dn, name, request.data.get("description",""))
+        if not org_dn or not name:
+            return Response({"detail":"organizationDn ve name gerekli"}, status=400)
+        desc = _str_or_empty(request.data.get("description", ""))
+        dn = svc.create_group(org_dn, name, desc)
         return Response({"dn": dn}, status=201)
 
 class GroupDetailView(APIView):
     def put(self, request, b64dn: str):
-        svc.update_group(b64d(b64dn), request.data.get("name"), request.data.get("description"))
+        name = request.data.get("name")
+        desc = _str_or_empty(request.data.get("description", ""))
+        svc.update_group(b64d(b64dn), name, desc)
         return Response({"ok": True})
     def delete(self, request, b64dn: str):
         svc.delete_group(b64d(b64dn))
@@ -57,7 +70,6 @@ class UsersView(APIView):
 
         dn = svc.create_user(org_dn, user, primary_group_dn=group_dn)
         return Response({"dn": dn}, status=201)
-
 
 class UserDetailView(APIView):
     def put(self, request, b64dn: str):
@@ -102,31 +114,24 @@ class ExportView(APIView):
         return Response({"detail":"bulunamadı"}, status=404)
 
 class ImportValidateView(APIView):
-    """
-    Doğrulama/önizleme: LDAP'a yazmaz; plan ve olası hataları döndürür.
-    """
     def post(self, request):
         data = request.data
         plan, errors = _build_import_plan(data)
         return Response({"ok": len(errors)==0, "plan": plan, "errors": errors}, status=200)
 
 class ImportApplyView(APIView):
-    """
-    Gerçek import: planı uygular ve toplu sonuç döndürür.
-    """
     def post(self, request):
         data = request.data
         plan, errors = _build_import_plan(data)
         results = []
         if errors:
             return Response({"ok": False, "errors": errors}, status=400)
-        # Uygula
         for step in plan:
             try:
                 if step["op"] == "create_org":
-                    svc.create_organization(step["name"], step.get("description",""))
+                    svc.create_organization(step["name"], _str_or_empty(step.get("description","")))
                 elif step["op"] == "create_group":
-                    svc.create_group(step["orgDn"], step["name"], step.get("description",""))
+                    svc.create_group(step["orgDn"], step["name"], _str_or_empty(step.get("description","")))
                 elif step["op"] == "create_user":
                     svc.create_user(step["orgDn"], step["user"], primary_group_dn=step.get("groupDn"))
                 results.append({"step": step, "ok": True})
@@ -136,12 +141,6 @@ class ImportApplyView(APIView):
         return Response({"ok": ok, "results": results}, status=200 if ok else 400)
 
 def _build_import_plan(data):
-    """
-    Kabul edilen biçimler:
-    - Full: { "domain": "...", "organizations": [ { "name": "...", "description": "...", "groups": [...], "users": [...] } ] }
-    - Group parçası: { "organizationDn": "...", "group": { "name": "...", "description": "..." } }
-    - User parçası:  { "organizationDn": "...", "groupDn": "...", "user": { "uid": "...", ... } }
-    """
     plan = []
     errors = []
 
@@ -152,11 +151,11 @@ def _build_import_plan(data):
     if "organizations" in data:
         for org in data["organizations"]:
             if "name" not in org: err("org: 'name' zorunlu"); continue
-            plan.append({"op":"create_org","name":org["name"],"description":org.get("description","")})
+            plan.append({"op":"create_org","name":org["name"],"description":_str_or_empty(org.get("description",""))})
             o_dn = org.get("dn") or org_dn(org["name"])
             for g in org.get("groups", []):
                 if "name" not in g: err(f"group @{org['name']}: 'name' zorunlu"); continue
-                plan.append({"op":"create_group","orgDn":o_dn,"name":g["name"],"description":g.get("description","")})
+                plan.append({"op":"create_group","orgDn":o_dn,"name":g["name"],"description":_str_or_empty(g.get("description",""))})
             for u in org.get("users", []):
                 if "uid" not in u: err(f"user @{org['name']}: 'uid' zorunlu"); continue
                 plan.append({"op":"create_user","orgDn":o_dn,"groupDn":u.get("primaryGroupDn"),"user":u})
@@ -166,7 +165,7 @@ def _build_import_plan(data):
         g = data["group"]
         req(g,"name","group")
         if not errors:
-            plan.append({"op":"create_group","orgDn":data["organizationDn"],"name":g["name"],"description":g.get("description","")})
+            plan.append({"op":"create_group","orgDn":data["organizationDn"],"name":g["name"],"description":_str_or_empty(g.get("description",""))})
         return plan, errors
 
     if "user" in data and "organizationDn" in data:

@@ -32,6 +32,13 @@ def group_dn(group_cn: str, org_dn_str: str) -> str:
 def user_dn(uid: str, group_dn_str: str) -> str:
     return f"uid={uid},{group_dn_str}"
 
+def _opt_str(v: Optional[str]) -> Optional[str]:
+    if v is None:
+        return None
+    s = str(v).strip()
+    return s if s else None
+
+
 # -------------------- Basit attr yardımcıları --------------------
 
 def _attr(entry, key, default=None):
@@ -184,33 +191,56 @@ def delete_organization(dn: str):
 
 # -------------------- Grup CRUD --------------------
 
-def create_group(org_dn: str, cn: str, description: str = ""):
-    group_dn = f"cn={cn},{org_dn}"
-    dummy_member = f"cn=placeholder,{org_dn}"  # dummy
+def create_group(org_dn: str, cn: str, description: Optional[str] = None):
+    gdn = f"cn={cn},{org_dn}"
+    desc = _opt_str(description)
 
-    attrs = {
-        "objectClass": ["top", "groupOfNames"],
-        "cn": cn,
-        "description": description,
-        "member": [dummy_member]
-    }
+    # objectClass ve zorunlular
+    ocs = ["top"]
+    attrs = {"cn": cn}
+
+    # groupOfNames ise 'member' zorunlu → placeholder
+    if GROUP_SCHEMA in ("groupOfNames", "both"):
+        ocs.append("groupOfNames")
+        org_part = org_dn  # "ou=...,dc=..." kısmı
+        placeholder = SEED_MEMBER_DN or f"cn=placeholder,{org_part}"
+        attrs["member"] = [placeholder]
+
+    # posixGroup ise gidNumber zorunlu
+    if GROUP_SCHEMA in ("posixGroup", "both"):
+        ocs.append("posixGroup")
+        gid = _next_number("gidNumber", org_dn)
+        attrs["gidNumber"] = str(gid)
+
+    if desc is not None:
+        attrs["description"] = desc
+
+    attrs["objectClass"] = ocs
 
     with ldap_conn() as c:
-        if not c.add(group_dn, attributes=attrs):
+        if not c.add(gdn, attributes=attrs):
             raise ValueError(c.result)
-    return group_dn
+    return gdn
+
 
 def update_group(dn: str, name: Optional[str]=None, description: Optional[str]=None):
     with ldap_conn() as c:
         changes = {}
-        if description is not None:
-            changes["description"] = [(REPLACE, [description])]
+        if description is not None: 
+            desc = _opt_str(description)
+            if desc is None:
+                changes["description"] = [(DELETE, [])]      
+            else:
+                changes["description"] = [(REPLACE, [desc])] 
+
         if changes and not c.modify(dn, changes):
             raise ValueError(c.result)
+
         if name:
             new_rdn = f"cn={name}"
             if not c.modify_dn(dn, new_rdn, True):
                 raise ValueError(c.result)
+
 
 def delete_group(dn: str):
     with ldap_conn() as c:

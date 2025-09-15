@@ -4,7 +4,8 @@ from .models import Client, ClientLog
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
-        fields = '__all__'
+        fields = '__all__'  # organization_dn, group_dn artık otomatik dahil
+        read_only_fields = ['created_at']
 
 class ClientLogSerializer(serializers.ModelSerializer):
     client_uuid = serializers.CharField(source='client.uuid', read_only=True)
@@ -13,4 +14,4 @@ class ClientLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientLog
         fields = '__all__'
-        read_only_fields = ['client_uuid', 'client_hostname']
+        read_only_fields = ['client_uuid', 'client_hostname', 'timestamp']

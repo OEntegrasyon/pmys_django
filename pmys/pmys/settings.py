@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'policy',
     'user',
     'directory.apps.DirectoryConfig',
+    "laps",
 ]
 
 MIDDLEWARE = [
@@ -123,22 +124,18 @@ if USE_DJANGO_AUTH_LDAP:
     AUTH_LDAP_BIND_DN = LDAP_DJANGO["AUTH_LDAP_BIND_DN"]
     AUTH_LDAP_BIND_PASSWORD = LDAP_DJANGO["AUTH_LDAP_BIND_PASSWORD"]
 
-    # Kullanıcılar subtree'de (grup altında) olduğundan SCOPE_SUBTREE kullan
     AUTH_LDAP_USER_SEARCH = LDAPSearch(
         LDAP_DJANGO["AUTH_LDAP_USER_SEARCH_BASE"],
         _python_ldap.SCOPE_SUBTREE,
         "(uid=%(user)s)",
     )
 
-    # Django User objesi güncellensin/yaratılsın mı?
     AUTH_LDAP_ALWAYS_UPDATE_USER = True
     AUTH_LDAP_CREATE_USERS = True
 else:
-    # LDAP auth kapalı, sadece Django default backend
     AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # --- UYGULAMA İÇİ LDAP API ayarları (bizim ldap3 tabanlı servisler için) ---
-# directory uygulaması içinde settings.LDAP_API ile erişebilirsin
 LDAP_API = {
     "SERVER_URI": LDAP_API_CFG["SERVER"],
     "BIND_DN": LDAP_API_CFG["USER_DN"],

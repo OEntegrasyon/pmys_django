@@ -7,3 +7,4 @@ export DB_USER=giys_user
 export DB_PASS=giys_passwd
 export DB_HOST=172.70.0.3
 export DB_PORT=5432
+export LAPS_FERNET_KEY="cq-UnrS9LQ8I3ZopJP5FcwvZK9yam0Eyh6V8g0Tzi5g="
