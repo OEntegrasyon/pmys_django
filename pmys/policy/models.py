@@ -4,6 +4,8 @@ class PolicyType(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     parameters = models.JSONField(blank=True, default=dict)
+    is_cis = models.BooleanField(default=False, verbose_name="CIS Tipi mi?") # BU ALANIN VARLIĞINDAN EMİN OL
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

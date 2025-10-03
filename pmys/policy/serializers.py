@@ -10,10 +10,21 @@ class PolicyTypeSerializer(serializers.ModelSerializer):
 class PolicySerializer(serializers.ModelSerializer):
     policy_type_name = serializers.CharField(source='policy_type.name', read_only=True)
     policy_type_parameters = serializers.JSONField(source='policy_type.parameters', read_only=True)
+    is_cis = serializers.BooleanField(source='policy_type.is_cis', read_only=True) 
 
     class Meta:
         model = Policy
-        fields = '__all__'
+        fields = [
+            'id',
+            'name',
+            'description',
+            'parameters',
+            'created_at',
+            'policy_type', 
+            'policy_type_name', 
+            'policy_type_parameters',
+            'is_cis'
+        ]
 
 class PolicyAssignmentSerializer(serializers.ModelSerializer):
     policy_id = serializers.PrimaryKeyRelatedField(
