@@ -7,6 +7,11 @@ class ClientSerializer(serializers.ModelSerializer):
         fields = '__all__'  # organization_dn, group_dn artık otomatik dahil
         read_only_fields = ['created_at']
 
+class ClientLiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = ["id", "uuid", "hostname", "is_active", "last_seen"]
+
 class ClientLogSerializer(serializers.ModelSerializer):
     client_uuid = serializers.CharField(source='client.uuid', read_only=True)
     client_hostname = serializers.CharField(source='client.hostname', read_only=True)

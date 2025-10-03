@@ -18,3 +18,5 @@ set_env.sh
 
 # nohup
 nohup.out
+
+policy_old/

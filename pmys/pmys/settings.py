@@ -31,6 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = [
+    "http://0.0.0.0:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     "http://192.168.1.39:3000",
@@ -148,7 +149,8 @@ LDAP_API = {
     "GROUP_SCHEMA": os.getenv("LDAP_GROUP_SCHEMA", "groupOfNames"),     # groupOfNames | posixGroup | both
     "LOCK_METHOD": os.getenv("LDAP_AUTH_LOCK_METHOD", "ppolicy"),       # ppolicy | shadow
 }
-
+# sync interval in seconds
+LDAP_SYNC_INTERVAL = 60
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
