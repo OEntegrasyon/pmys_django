@@ -3,7 +3,7 @@ from policy import models as policy_models
 
 class User(models.Model):
     username = models.CharField(max_length=150, unique=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(blank=True)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     policies = models.ManyToManyField(policy_models.Policy, related_name='users', blank=True)

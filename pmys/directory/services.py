@@ -5,6 +5,10 @@ from ldap3.utils.dn import parse_dn, safe_rdn
 from ldap3.core.exceptions import LDAPAttributeError
 from .ldap_client import ldap_conn
 from .utils import ADD, DELETE, REPLACE
+from django.contrib.auth.hashers import make_password
+import base64
+import os
+import hashlib
 
 CFG = settings.LDAP_API
 BASE_DN = CFG["BASE_DN"]
@@ -95,7 +99,7 @@ def load_tree() -> Dict:
 
             # Kullanıcılar
             base_attrs = [
-                "uid", "givenName", "sn", "mail", "telephoneNumber",
+                "uid", "givenName", "sn", "mail", "telephoneNumber","userPassword",
                 "uidNumber", "gidNumber", "homeDirectory"
             ]
             lock_attr = "shadowExpire" if LOCK_METHOD == "shadow" else "pwdAccountLockedTime"
@@ -129,6 +133,7 @@ def load_tree() -> Dict:
                     "sn": _attr(u, "sn", ""),
                     "mail": _attr(u, "mail", ""),
                     "phone": _attr(u, "telephoneNumber", ""),
+                    "userPassword": _attr(u, "userPassword", ""),
                     "uidNumber": _attr(u, "uidNumber"),
                     "gidNumber": _attr(u, "gidNumber"),
                     "homeDirectory": _attr(u, "homeDirectory", ""),
@@ -392,6 +397,7 @@ def create_user(org_dn_str: str, data: Dict, primary_group_dn: Optional[str]) ->
     cn = (given + " " + sn).strip() or uid
     mail = data.get("mail")
     phone = data.get("phone")
+    userPassword = data.get("userPassword")
 
     uidNumber = data.get("uidNumber") or _next_number("uidNumber", org_dn_str)
     gidNumber = data.get("gidNumber")
@@ -417,6 +423,17 @@ def create_user(org_dn_str: str, data: Dict, primary_group_dn: Optional[str]) ->
     }
     if mail:  attrs["mail"] = mail
     if phone: attrs["telephoneNumber"] = phone
+    if userPassword:
+
+        # LDAP için SSHA ile şifrele
+        def ldap_ssha(password: str) -> str:
+            salt = os.urandom(4)
+            sha = hashlib.sha1(password.encode('utf-8'))
+            sha.update(salt)
+            digest = sha.digest() + salt
+            return '{SSHA}' + base64.b64encode(digest).decode('utf-8')
+
+        attrs["userPassword"] = ldap_ssha(userPassword)
 
     with ldap_conn() as c:
         if not c.add(dn, attributes=attrs):
@@ -437,6 +454,15 @@ def update_user(dn: str, data: Dict):
     if cn: put("cn", cn)
     put("mail", data.get("mail"))
     put("telephoneNumber", data.get("phone"))
+    user_password = data.get("userPassword")
+    if user_password:
+        def ldap_ssha(password: str) -> str:
+            salt = os.urandom(4)
+            sha = hashlib.sha1(password.encode('utf-8'))
+            sha.update(salt)
+            digest = sha.digest() + salt
+            return '{SSHA}' + base64.b64encode(digest).decode('utf-8')
+        put("userPassword", ldap_ssha(user_password))
     if data.get("uidNumber") is not None: put("uidNumber", str(data["uidNumber"]))
     if data.get("gidNumber") is not None: put("gidNumber", str(data["gidNumber"]))
     put("homeDirectory", data.get("homeDirectory"))
