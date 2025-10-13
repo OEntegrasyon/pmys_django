@@ -11,7 +11,7 @@ class PolicyViewSet(viewsets.ModelViewSet):
     serializer_class = PolicySerializer
 
 class PolicyAssignmentViewSet(viewsets.ModelViewSet):
-    queryset = PolicyAssignment.objects.all().order_by('-created_at')
+    queryset = PolicyAssignment.objects.select_related('policy', 'assigned_to').all().order_by('-created_at')
     serializer_class = PolicyAssignmentSerializer
 
 class PolicyLogViewSet(viewsets.ModelViewSet):

@@ -7,6 +7,6 @@ class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
 
 class ClientLogViewSet(viewsets.ModelViewSet):
-    queryset = ClientLog.objects.all().order_by('-timestamp')
+    queryset = ClientLog.objects.select_related('client').all().order_by('-timestamp')
     serializer_class = ClientLogSerializer
 
