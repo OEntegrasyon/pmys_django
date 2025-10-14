@@ -58,7 +58,7 @@ objectclass: groupOfNames
 # Entry 6: uid=bakbeyaz,cn=devops,ou=JAVATAR,dc=giys,dc=org
 dn: uid=bakbeyaz,cn=devops,ou=JAVATAR,dc=giys,dc=org
 cn: Burak Akbeyaz
-gidnumber: 10002
+gidnumber: 10001
 givenname: Burak
 homedirectory: /home/bakbeyaz
 loginshell: /bin/bash
@@ -70,13 +70,12 @@ objectclass: shadowAccount
 sn: Akbeyaz
 telephonenumber: 5411233696
 uid: bakbeyaz
-uidnumber: 10002
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
+uidnumber: 10001
 
 # Entry 7: uid=lapuhan,cn=devops,ou=JAVATAR,dc=giys,dc=org
 dn: uid=lapuhan,cn=devops,ou=JAVATAR,dc=giys,dc=org
 cn: Lutin Apuhan
-gidnumber: 10003
+gidnumber: 10002
 givenname: Lutin
 homedirectory: /home/lapuhan
 loginshell: /bin/bash
@@ -88,23 +87,21 @@ objectclass: shadowAccount
 sn: Apuhan
 telephonenumber: 5200233212
 uid: lapuhan
-uidnumber: 10003
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
+uidnumber: 10002
 
 # Entry 8: cn=Management,ou=JAVATAR,dc=giys,dc=org
-dn: cn=Management,ou=JAVATAR,dc=example,dc=org
-cn: Management
-description: Management üyelerinin grubu
-member: uid=huseyin,cn=Management,ou=JAVATAR,dc=example,dc=org
+dn:: Y249WcO2bmV0aW0sb3U9SkFWQVRBUixkYz1naXlzLGRjPW9yZw==
+cn:: WcO2bmV0aW0=
+description:: WcO2bmV0aW0gw7x5ZWxlcmluaW4gZ3J1YnU=
+member:: dWlkPWh1c2V5aW4sY249WcO2bmV0aW0sb3U9SkFWQVRBUixkYz1naXlzLGRjPW9yZw==
 objectclass: top
 objectclass: groupOfNames
 
-
 # Entry 9: uid=huseyin,cn=Management,ou=JAVATAR,dc=giys,dc=org
-dn: uid=huseyin,cn=Management,ou=JAVATAR,dc=example,dc=org
-cn: Hüseyin Lutin
-gidnumber: 10004
-givenname: Hüseyin
+dn:: dWlkPWh1c2V5aW4sY249WcO2bmV0aW0sb3U9SkFWQVRBUixkYz1naXlzLGRjPW9yZw==
+cn:: SMO8c2V5aW4gTHV0aW4=
+gidnumber: 10003
+givenname:: SMO8c2V5aW4=
 homedirectory: /home/huseyin
 loginshell: /bin/bash
 mail: huseyin@javatar.net
@@ -115,12 +112,11 @@ objectclass: shadowAccount
 sn: Lutin
 telephonenumber: 5322456212
 uid: huseyin
-uidnumber: 10004
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
+uidnumber: 10003
 
 # Entry 10: ou=OET,dc=giys,dc=org
 dn: ou=OET,dc=giys,dc=org
-description: Özgür Entegrasyon 
+description:: w5Z6Z8O8ciBFbnRlZ3Jhc3lvbiA=
 objectclass: top
 objectclass: organizationalUnit
 ou: OET
@@ -141,7 +137,7 @@ objectclass: groupOfNames
 # Entry 12: uid=acanbay,cn=Devops,ou=OET,dc=giys,dc=org
 dn: uid=acanbay,cn=Devops,ou=OET,dc=giys,dc=org
 cn: Abdulkerim Canbay
-gidnumber: 10005
+gidnumber: 10004
 givenname: Abdulkerim
 homedirectory: /home/acanbay
 loginshell: /bin/bash
@@ -153,13 +149,13 @@ objectclass: shadowAccount
 sn: Canbay
 telephonenumber: 5422366252
 uid: acanbay
-uidnumber: 10005
+uidnumber: 10004
 userpassword: {SSHA}smph7UvjojUNCH9DU5jj0KyzokC6UCoi
 
 # Entry 13: uid=erma,cn=Devops,ou=OET,dc=giys,dc=org
 dn: uid=erma,cn=Devops,ou=OET,dc=giys,dc=org
-cn: Emre Serdengeçti
-gidnumber: 10006
+cn:: RW1yZSBTZXJkZW5nZcOndGk=
+gidnumber: 10005
 givenname: Emre
 homedirectory: /home/erma
 loginshell: /bin/bash
@@ -168,16 +164,16 @@ objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Serdengeçti
+sn:: U2VyZGVuZ2XDp3Rp
 telephonenumber: 5456542542
 uid: erma
-uidnumber: 10006
+uidnumber: 10005
 userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 14: uid=mates,cn=Devops,ou=OET,dc=giys,dc=org
 dn: uid=mates,cn=Devops,ou=OET,dc=giys,dc=org
-cn: Mustafa Ateş
-gidnumber: 10007
+cn:: TXVzdGFmYSBBdGXFnw==
+gidnumber: 10006
 givenname: Mustafa
 homedirectory: /home/mates
 loginshell: /bin/bash
@@ -186,7 +182,7 @@ objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Ateş
+sn:: QXRlxZ8=
 telephonenumber: 5322566321
 uid: mates
 uidnumber: 10007
@@ -194,7 +190,7 @@ userpassword: {SSHA}Y7q9mVQwyXBkKev2nz8BPpMrxZu3OTz/
 
 # Entry 15: uid=yozbey,cn=Devops,ou=OET,dc=giys,dc=org
 dn: uid=yozbey,cn=Devops,ou=OET,dc=giys,dc=org
-cn: Yasin Özbey
+cn:: WWFzaW4gw5Z6YmV5
 gidnumber: 10008
 givenname: Yasin
 homedirectory: /home/yozbey
@@ -204,16 +200,16 @@ objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Özbey
+sn:: w5Z6YmV5
 telephonenumber: 5422132523
 uid: yozbey
 uidnumber: 10008
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
+userpassword: q
 
 # Entry 16: cn=Fullstack,ou=OET,dc=giys,dc=org
 dn: cn=Fullstack,ou=OET,dc=giys,dc=org
 cn: Fullstack
-description: Yazılım geliştirme ekibinin bulunduğu grup
+description:: WWF6xLFsxLFtIGdlbGnFn3Rpcm1lIGVraWJpbmluIGJ1bHVuZHXEn3UgZ3J1cA==
 member: uid=idris,cn=Fullstack,ou=OET,dc=giys,dc=org
 member: uid=samil,cn=Fullstack,ou=OET,dc=giys,dc=org
 member: uid=aparpucu,cn=Fullstack,ou=OET,dc=giys,dc=org
@@ -240,13 +236,12 @@ sn: Parpucu
 telephonenumber: 5421123652
 uid: aparpucu
 uidnumber: 10009
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 18: uid=idris,cn=Fullstack,ou=OET,dc=giys,dc=org
 dn: uid=idris,cn=Fullstack,ou=OET,dc=giys,dc=org
-cn: İdris Kurtar
+cn:: xLBkcmlzIEt1cnRhcg==
 gidnumber: 10010
-givenname: İdris
+givenname:: xLBkcmlz
 homedirectory: /home/idris
 loginshell: /bin/bash
 mail: i.kurtar@ozgurentegrasyon.net
@@ -258,7 +253,6 @@ sn: Kurtar
 telephonenumber: 5541193333
 uid: idris
 uidnumber: 10010
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 19: uid=makpolat,cn=Fullstack,ou=OET,dc=giys,dc=org
 dn: uid=makpolat,cn=Fullstack,ou=OET,dc=giys,dc=org
@@ -276,34 +270,32 @@ sn: Akpolat
 telephonenumber: 5422155263
 uid: makpolat
 uidnumber: 10011
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 20: uid=myildirim,cn=Fullstack,ou=OET,dc=giys,dc=org
 dn: uid=myildirim,cn=Fullstack,ou=OET,dc=giys,dc=org
-cn: Mehmet
+cn:: TWVobWV0IFnEsWxkxLFyxLFt
 gidnumber: 10012
 givenname: Mehmet
 homedirectory: /home/myildirim
 loginshell: /bin/bash
-mail: myildirim@oguzentegrasyon.com
+mail: myildirim@ozgurentegrasyon.com
 objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Yildirim
+sn:: WcSxbGTEsXLEsW0=
 telephonenumber: 542526321
 uid: myildirim
 uidnumber: 10012
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 21: uid=nromani,cn=Fullstack,ou=OET,dc=giys,dc=org
 dn: uid=nromani,cn=Fullstack,ou=OET,dc=giys,dc=org
-cn: Nasır Romani
+cn:: TmFzxLFyIFJvbWFuaQ==
 gidnumber: 10013
-givenname: Nasır
+givenname:: TmFzxLFy
 homedirectory: /home/nromani
 loginshell: /bin/bash
-mail: nromani@bogusdomain.com
+mail: nromani@ozgurentegrasyon.com
 objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
@@ -312,31 +304,29 @@ sn: Romani
 telephonenumber: 5422366321
 uid: nromani
 uidnumber: 10013
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 22: uid=nurullah,cn=Fullstack,ou=OET,dc=giys,dc=org
 dn: uid=nurullah,cn=Fullstack,ou=OET,dc=giys,dc=org
-cn: Nurullah Şarkbülbülü
+cn:: TnVydWxsYWggxZ5hcmtiw7xsYsO8bMO8
 gidnumber: 10014
 givenname: Nurullah
 homedirectory: /home/nurullah
 loginshell: /bin/bash
-mail: nsarkbulbulu@oguzentegrasyon.com
+mail: nsarkbulbulu@ozgurentegrasyon.com
 objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Şarkbülbülü
+sn:: xZ5hcmtiw7xsYsO8bMO8
 telephonenumber: 55563214255
 uid: nurullah
 uidnumber: 10014
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 23: uid=samil,cn=Fullstack,ou=OET,dc=giys,dc=org
 dn: uid=samil,cn=Fullstack,ou=OET,dc=giys,dc=org
-cn: Şamil Çınar
+cn:: xZ5hbWlsIMOHxLFuYXI=
 gidnumber: 10015
-givenname: şamil
+givenname:: xZ5hbWls
 homedirectory: /home/samil
 loginshell: /bin/bash
 mail: s.cinar@ozgurentegrasyon.net
@@ -344,25 +334,24 @@ objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Çınar
+sn:: w4fEsW5hcg==
 telephonenumber: 5369480628
 uid: samil
 uidnumber: 10015
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 24: cn=Muhasebe,ou=OET,dc=giys,dc=org
 dn: cn=Muhasebe,ou=OET,dc=giys,dc=org
 cn: Muhasebe
-description: Muhasebe ve insan kaynakları, içnetim ekibi
+description:: TXVoYXNlYmUgdmUgaW5zYW4ga2F5bmFrbGFyxLFuxLFuIHnDtm5ldGltIGVraWJp
 member: uid=akurt,cn=Muhasebe,ou=OET,dc=giys,dc=org
 objectclass: top
 objectclass: groupOfNames
 
 # Entry 25: uid=akurt,cn=Muhasebe,ou=OET,dc=giys,dc=org
 dn: uid=akurt,cn=Muhasebe,ou=OET,dc=giys,dc=org
-cn: Ali Özgür Kurt
+cn:: QWxpIMOWemfDvHIgS3VydA==
 gidnumber: 10016
-givenname: Ali Özgür
+givenname:: QWxpIMOWemfDvHI=
 homedirectory: /home/akurt
 loginshell: /bin/bash
 mail: akurt@ozgurentegrasyon.com
@@ -374,12 +363,11 @@ sn: Kurt
 telephonenumber: 5422633245
 uid: akurt
 uidnumber: 10016
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 26: cn=Secops,ou=OET,dc=giys,dc=org
 dn: cn=Secops,ou=OET,dc=giys,dc=org
 cn: Secops
-description: Güvenlik operasyonları, saldırı tespit/yanıt ekibi
+description:: R8O8dmVubGlrIG9wZXJhc3lvbmxhcsSxbsSxIHNhxJ9sYXlhbiBla2lw
 member: uid=fbasesme,cn=Secops,ou=OET,dc=giys,dc=org
 member: uid=aozturk,cn=Secops,ou=OET,dc=giys,dc=org
 member: uid=tyilmaz,cn=Secops,ou=OET,dc=giys,dc=org
@@ -388,7 +376,7 @@ objectclass: groupOfNames
 
 # Entry 27: uid=aozturk,cn=Secops,ou=OET,dc=giys,dc=org
 dn: uid=aozturk,cn=Secops,ou=OET,dc=giys,dc=org
-cn: Ahmet Nuri
+cn:: QWhtZXQgTnVyaSDDlnp0w7xyaw==
 gidnumber: 10017
 givenname: Ahmet Nuri
 homedirectory: /home/aozturk
@@ -398,15 +386,14 @@ objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Öztürk
+sn:: w5Z6dMO8cms=
 telephonenumber: 52332445695
 uid: aozturk
 uidnumber: 10017
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 28: uid=fbasesme,cn=Secops,ou=OET,dc=giys,dc=org
 dn: uid=fbasesme,cn=Secops,ou=OET,dc=giys,dc=org
-cn: Fatih Başeşme
+cn:: RmF0aWggQmHFn2XFn21l
 gidnumber: 10018
 givenname: Fatih
 homedirectory: /home/fbasesme
@@ -416,15 +403,14 @@ objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Başeşme
+sn:: QmHFn2XFn21l
 telephonenumber: 5421155632
 uid: fbasesme
 uidnumber: 10018
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 29: uid=tyilmaz,cn=Secops,ou=OET,dc=giys,dc=org
 dn: uid=tyilmaz,cn=Secops,ou=OET,dc=giys,dc=org
-cn: Tacettin Yılmaz
+cn:: VGFjZXR0aW4gWcSxbG1heg==
 gidnumber: 10019
 givenname: Tacettin
 homedirectory: /home/tyilmaz
@@ -434,25 +420,24 @@ objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Yılmaz
+sn:: WcSxbG1heg==
 telephonenumber: 5422366523
 uid: tyilmaz
 uidnumber: 10019
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 30: cn=Management,ou=OET,dc=giys,dc=org
-dn: cn=Management,ou=OET,dc=example,dc=org
-cn: Management
-description: Management grubu
-member: uid=ozgur,cn=Management,ou=OET,dc=example,dc=org
+dn:: Y249WcO2bmV0aW0sb3U9T0VULGRjPWdpeXMsZGM9b3Jn
+cn:: WcO2bmV0aW0=
+description:: WcO2bmV0aW0gZ3J1YnU=
+member:: dWlkPW96Z3VyLGNuPVnDtm5ldGltLG91PU9FVCxkYz1naXlzLGRjPW9yZw==
 objectclass: top
 objectclass: groupOfNames
 
 # Entry 31: uid=ozgur,cn=Management,ou=OET,dc=giys,dc=org
-dn: uid=ozgur,cn=Management,ou=OET,dc=example,dc=org
-cn: Özgür Mersin
+dn:: dWlkPW96Z3VyLGNuPVnDtm5ldGltLG91PU9FVCxkYz1naXlzLGRjPW9yZw==
+cn:: w5Z6Z8O8ciBNZXJzaW4=
 gidnumber: 10020
-givenname: Özgür
+givenname:: w5Z6Z8O8cg==
 homedirectory: /home/ozgur
 loginshell: /bin/bash
 mail: info@ozgurentegrasyon.net
@@ -464,7 +449,6 @@ sn: Mersin
 telephonenumber: 5345621456
 uid: ozgur
 uidnumber: 10020
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 
 # Entry 32: ou=Techia,dc=giys,dc=org
 dn: ou=Techia,dc=giys,dc=org
@@ -501,24 +485,24 @@ userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==
 # Entry 35: cn=Secops,ou=Techia,dc=giys,dc=org
 dn: cn=Secops,ou=Techia,dc=giys,dc=org
 cn: Secops
-description: Güvenlik operasyonları, saldırı tespit/yanıt ekibi
-member: cn=admin,dc=giys,dc=org
+description:: R8O8dmVubGlrIG9wZXJhc3lvbmxhcsSxbsSxIHNhxJ9sYXlhbiBla2lw
+member: uid=admin,ou=GIYS-RELINE,dc=giys,dc=org
 objectclass: top
 objectclass: groupOfNames
 
 # Entry 36: cn=Management,ou=Techia,dc=giys,dc=org
-dn: cn=Management,ou=Techia,dc=example,dc=org
-cn: Management
-description: Management ekibinin bulunduğu grup
-member: uid=ibrahim,cn=Management,ou=Techia,dc=example,dc=org
+dn:: Y249WcO2bmV0aW0sb3U9VGVjaGlhLGRjPWdpeXMsZGM9b3Jn
+cn:: WcO2bmV0aW0=
+description:: WcO2bmV0aW0gZWtpYmluaW4gYnVsdW5kdcSfdSBncnVw
+member:: dWlkPWlicmFoaW0sY249WcO2bmV0aW0sb3U9VGVjaGlhLGRjPWdpeXMsZGM9b3Jn
 objectclass: top
 objectclass: groupOfNames
 
 # Entry 37: uid=ibrahim,cn=Management,ou=Techia,dc=giys,dc=org
-dn: uid=ibrahim,cn=Management,ou=Techia,dc=example,dc=org
-cn: İbrahim Akşit
+dn:: dWlkPWlicmFoaW0sY249WcO2bmV0aW0sb3U9VGVjaGlhLGRjPWdpeXMsZGM9b3Jn
+cn:: xLBicmFoaW0gQWvFn2l0
 gidnumber: 10022
-givenname: İbrahim
+givenname:: xLBicmFoaW0=
 homedirectory: /home/ibrahim
 loginshell: /bin/bash
 mail: iaksit@techia.net
@@ -526,8 +510,7 @@ objectclass: top
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
-sn: Akşit
+sn:: QWvFn2l0
 telephonenumber: 5556253652
 uid: ibrahim
 uidnumber: 10022
-userpassword: {MD5}dpT0pmMW5TyM3Z2ZVL1hHQ==

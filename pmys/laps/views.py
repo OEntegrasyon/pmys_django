@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from django.http import HttpResponseBadRequest, Http404
 from django.db.models import Q
 from django.db import transaction
+from utils.pagination import OptionalPagination
 
 from client.models import Client
 from .serializers import (
@@ -116,6 +117,9 @@ class ClientHistoryByKeyView(APIView):
 class PolicyViewSet(viewsets.ModelViewSet):
     queryset = LapsPolicy.objects.all().order_by("name")
     serializer_class = LapsPolicySerializer
+    pagination_class = OptionalPagination
+
+
 
 # -------- Extra: accounts/effective-policy/assignments --------
 @api_view(["GET"])

@@ -26,11 +26,11 @@ services:
     image: osixia/openldap:latest
     container_name: openldap
     environment:
-      LDAP_BASE_DN: dc=example,dc=org
-      LDAP_BIND_DN: cn=admin,dc=example,dc=org
+      LDAP_BASE_DN: dc=giys,dc=org
+      LDAP_BIND_DN: cn=admin,dc=giys,dc=org
       LDAP_BIND_PASS: adminpassword
-      LDAP_ORGANISATION: "Example Organization"
-      LDAP_DOMAIN: "example.org"
+      LDAP_ORGANISATION: "Giys Organization"
+      LDAP_DOMAIN: "giys.org"
       LDAP_ADMIN_PASSWORD: "admin"
       LDAP_TLS: "false"
     volumes:
