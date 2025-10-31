@@ -1,4 +1,4 @@
-# ldap/sync.py
+# directory/sync.py
 import logging
 from typing import Dict, Tuple
 from django.db import transaction

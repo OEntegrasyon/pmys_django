@@ -3,7 +3,7 @@ from .api_views import (
     NextIdsView, TreeView, OrganizationsView, OrganizationDetailView,
     GroupsView, GroupDetailView,
     UsersView, UserDetailView, UserMoveView, UserActiveView,
-    ExportView, ImportValidateView, ImportApplyView,
+    ExportView, ImportValidateView, ImportApplyView, ImportUploadView
 )
 
 app_name = "ldap_api"
@@ -23,6 +23,8 @@ urlpatterns = [
     path("users/<str:b64dn>/active/", UserActiveView.as_view()),
 
     path("export/", ExportView.as_view()),
+
+    path("import/upload/", ImportUploadView.as_view()),
     path("import/validate/", ImportValidateView.as_view()),
     path("import/apply/", ImportApplyView.as_view()),
 
