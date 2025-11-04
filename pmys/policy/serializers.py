@@ -6,6 +6,7 @@ class PolicyTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PolicyType
         fields = '__all__'
+        read_only_fields = ['id', 'created_at']
 
 class PolicySerializer(serializers.ModelSerializer):
     policy_type_name = serializers.CharField(source='policy_type.name', read_only=True)
@@ -25,6 +26,7 @@ class PolicySerializer(serializers.ModelSerializer):
             'policy_type_parameters',
             'is_cis'
         ]
+        read_only_fields = ['id', 'created_at']
 
 class PolicyAssignmentSerializer(serializers.ModelSerializer):
     policy_id = serializers.PrimaryKeyRelatedField(
@@ -47,6 +49,7 @@ class PolicyAssignmentSerializer(serializers.ModelSerializer):
             'assigned_to_username',
             'created_at'
         ]
+        read_only_fields = ['id', 'created_at']
 
 class PolicyLogSerializer(serializers.ModelSerializer):
     policy_name = serializers.CharField(source='policy.name', read_only=True)
@@ -55,3 +58,4 @@ class PolicyLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = PolicyLog
         fields = '__all__'
+        read_only_fields = ['id', 'timestamp']

@@ -1,10 +1,10 @@
-export RABBITMQ_HOST=192.168.1.39
+export RABBITMQ_HOST=192.168.76.50
 export RABBITMQ_PORT=15672
-export RABBITMQ_USER=giys
-export RABBITMQ_PASS=giys
-export DB_NAME=giys_db
-export DB_USER=giys_user
-export DB_PASS=giys_passwd
-export DB_HOST=192.168.1.39
+export RABBITMQ_USER=pardus
+export RABBITMQ_PASS=q
+export DB_NAME=pmysdb
+export DB_USER=pmysuser
+export DB_PASS=q
+export DB_HOST=192.168.76.50
 export DB_PORT=5432
 export LAPS_FERNET_KEY="cq-UnrS9LQ8I3ZopJP5FcwvZK9yam0Eyh6V8g0Tzi5g="
