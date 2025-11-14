@@ -1,5 +1,7 @@
 from django.db import models
 
+from policy.models import Policy
+
 class Client(models.Model):
     uuid = models.CharField(max_length=200, unique=True)
     ip_address = models.CharField(max_length=200, blank=True)
@@ -9,6 +11,8 @@ class Client(models.Model):
     organization_dn = models.CharField(max_length=512, null=True, blank=True, db_index=True)
     group_dn        = models.CharField(max_length=512, null=True, blank=True, db_index=True)
     user_dn         = models.CharField(max_length=512, null=True, blank=True, db_index=True)
+
+    policies= models.ManyToManyField(Policy, related_name='clients', blank=True)
 
     users_logged_in = models.ManyToManyField('user.User', related_name='clients', blank=True)
     description = models.TextField(blank=True)

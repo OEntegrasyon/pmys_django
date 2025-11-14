@@ -5,6 +5,8 @@ from datetime import datetime
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
 import uuid as uuidlib
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 
 class ClientConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -13,6 +15,8 @@ class ClientConfig(AppConfig):
     thread_started = False 
 
     def ready(self):
+        Client = self.get_model('Client')
+        m2m_changed.connect(log_client_policy_assignment, sender=Client.policies.through)
         if os.environ.get("RUN_MAIN") == "true":
             if not self.thread_started:
                 self.thread_started = True
@@ -90,7 +94,7 @@ class ClientConfig(AppConfig):
                     body=response
                 )
 
-            self.publish_user_policies(user)
+            self.publish_policies(user, client)
 
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(
@@ -147,34 +151,97 @@ class ClientConfig(AppConfig):
                     client.save()
             time.sleep(5)
 
-    def publish_user_policies(self, user):
-        from user.models import User
+    def publish_policies(self, user, client): 
         from policy.models import Policy
+        from .models import Client 
 
+        user_policies = Policy.objects.none()
+        
         if user and user.is_active:
-            user_policies = User.objects.filter(id=user.id).values_list('policies__id', flat=True)
-            if user_policies:
-                user_policies = Policy.objects.filter(id__in=user_policies)
-            else:
-                user_policies = Policy.objects.none()
-            
-            message = {
-                "username": user.username,
-                "policies": list(user_policies.values('policy_type__name', 'parameters'))
-            }
+            try:
+ 
+                user_with_policies = user.__class__.objects.prefetch_related('policies__policy_type').get(id=user.id)
+                user_policies = user_with_policies.policies.all()
+            except user.__class__.DoesNotExist:
+                pass 
 
-            conn_params = pika.ConnectionParameters(
-                host=os.environ.get('RABBITMQ_HOST'),
-                credentials=pika.PlainCredentials(os.environ.get('RABBITMQ_USER'), os.environ.get('RABBITMQ_PASS'))
-            )
-            connection = pika.BlockingConnection(conn_params)
-            channel = connection.channel()
-            channel.queue_declare(queue='user_policy_queue', durable=True)
-            
-            channel.basic_publish(
-                exchange='',
-                routing_key='user_policy_queue',
-                body=json.dumps(message),
-                properties=pika.BasicProperties(delivery_mode=2)
-            )
-            connection.close()
+
+        try:
+            client_with_policies = Client.objects.prefetch_related('policies__policy_type').get(id=client.id)
+            client_policies = client_with_policies.policies.all()
+        except Client.DoesNotExist:
+            client_policies = Policy.objects.none()
+
+        def serialize_policies(policy_queryset):
+            return list(policy_queryset.values(
+                'policy_type__name', 
+                'parameters',
+                'policy_type__is_cis'
+            ))
+
+        message = {
+            "username": user.username if user else None,
+            "client_uuid": client.uuid,
+            "policies": {
+                "user": serialize_policies(user_policies),
+                "client": serialize_policies(client_policies)
+            }
+        }
+
+        conn_params = pika.ConnectionParameters(
+            host=os.environ.get('RABBITMQ_HOST'),
+            credentials=pika.PlainCredentials(os.environ.get('RABBITMQ_USER'), os.environ.get('RABBITMQ_PASS'))
+        )
+        connection = pika.BlockingConnection(conn_params)
+        channel = connection.channel()
+        channel.queue_declare(queue='user_policy_queue', durable=True)
+        
+        channel.basic_publish(
+            exchange='',
+            routing_key='user_policy_queue',
+            body=json.dumps(message),
+            properties=pika.BasicProperties(delivery_mode=2)
+        )
+        connection.close()
+
+def log_client_policy_assignment(sender, instance, action, pk_set, **kwargs):
+
+    from .models import ClientLog, Client
+    from policy.models import Policy
+
+    if not isinstance(instance, Client):
+        return
+
+    if getattr(instance, '_m2m_signal_running', False):
+        return
+    
+    setattr(instance, '_m2m_signal_running', True)
+
+    try:
+        if action == "post_add":
+            policies = Policy.objects.filter(pk__in=pk_set)
+            for policy in policies:
+                ClientLog.objects.create(
+                    client=instance, 
+                    action="policy_assigned", 
+                    details={
+                        "policy_id": policy.id,
+                        "policy_name": policy.name,
+                        "policy_type": policy.policy_type.name,
+                        "message": f"'{policy.name}' politikası istemciye atandı."
+                    }
+                )
+        elif action == "post_remove":
+            policies = Policy.objects.filter(pk__in=pk_set)
+            for policy in policies:
+                ClientLog.objects.create(
+                    client=instance,
+                    action="policy_removed", 
+                    details={
+                        "policy_id": policy.id,
+                        "policy_name": policy.name,
+                        "message": f"'{policy.name}' politikası istemciden kaldırıldı."
+                    }
+                )
+    finally:
+        delattr(instance, '_m2m_signal_running')
