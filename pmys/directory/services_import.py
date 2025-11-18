@@ -46,8 +46,8 @@ def _cn_from_cn_or_dn(val: Optional[str]) -> Optional[str]:
 
 def _index_tree(tree: dict):
     org_by_name: Dict[str, dict] = {}
-    group_by_key: Dict[Tuple[str, str], dict] = {}   # (orgName, groupCN)
-    user_by_uid: Dict[Tuple[str, str], dict] = {}    # (orgName, uid)
+    group_by_key: Dict[Tuple[str, str], dict] = {}  
+    user_by_uid: Dict[Tuple[str, str], dict] = {}    
 
     for o in tree.get("organizations", []):
         on = o.get("name")

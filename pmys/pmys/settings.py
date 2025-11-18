@@ -39,13 +39,11 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# CSRF gerekiyorsa:
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.1.39:3000",
 ]
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -136,20 +134,17 @@ if USE_DJANGO_AUTH_LDAP:
 else:
     AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
-# --- UYGULAMA İÇİ LDAP API ayarları (bizim ldap3 tabanlı servisler için) ---
 LDAP_API = {
     "SERVER_URI": LDAP_API_CFG["SERVER"],
     "BIND_DN": LDAP_API_CFG["USER_DN"],
     "BIND_PASSWORD": LDAP_API_CFG["PASSWORD"],
     "BASE_DN": LDAP_API_CFG["BASE_DN"],
 
-    # İsteğe bağlı gelişmişler (.env'inde yoksa defaults kullan)
-    "ORG_BASE_OU": os.getenv("LDAP_ORG_BASE_OU", ""),     # örn: ou=Organizasyon
-    "USER_PLACEMENT": os.getenv("LDAP_USER_PLACEMENT", "under_group"),  # under_group | two_level
-    "GROUP_SCHEMA": os.getenv("LDAP_GROUP_SCHEMA", "groupOfNames"),     # groupOfNames | posixGroup | both
-    "LOCK_METHOD": os.getenv("LDAP_AUTH_LOCK_METHOD", "ppolicy"),       # ppolicy | shadow
+    "ORG_BASE_OU": os.getenv("LDAP_ORG_BASE_OU", ""),     
+    "USER_PLACEMENT": os.getenv("LDAP_USER_PLACEMENT", "under_group"),  
+    "GROUP_SCHEMA": os.getenv("LDAP_GROUP_SCHEMA", "groupOfNames"),     
+    "LOCK_METHOD": os.getenv("LDAP_AUTH_LOCK_METHOD", "ppolicy"),       
 }
-# sync interval in seconds
 LDAP_SYNC_INTERVAL = 60
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
