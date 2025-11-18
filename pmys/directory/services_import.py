@@ -1,4 +1,3 @@
-# directory/services_import.py
 from dataclasses import dataclass
 import re
 from typing import List, Dict, Optional, Literal, Tuple, Set
@@ -23,7 +22,6 @@ class Change:
     blockers: Optional[List[str]] = None
     preconditions: Optional[dict] = None
 
-# ---------------- helpers ----------------
 def _norm(s: str | None) -> str:
     return (s or "").strip().lower()
 
@@ -101,15 +99,13 @@ def _parent_dn_from_user(u: dict, orgdn: str) -> Optional[str]:
         gcn = _cn_from_cn_or_dn(grs[0])
         if gcn:
             return _group_dn(gcn, orgdn)
-    # primaryGroup metni CN/DN olarak gelebilir
     pg = u.get("primaryGroup")
     if isinstance(pg, str) and pg:
         if "cn=" in pg.lower():
-            return ",".join(pg.split(",",1)[1:])  # grubun kendi DN'i parent olur
+            return ",".join(pg.split(",",1)[1:])  
         return _group_dn(pg, orgdn)
     return None
 
-# ---------------- planner ----------------
 def compute_plan(payload: dict, options: dict | None = None):
     """
     - primaryGroup: CN veya DN destekli; yoksa user.groups[0] -> org/payload ilk grup fallback
@@ -140,7 +136,6 @@ def compute_plan(payload: dict, options: dict | None = None):
         odesc: str = org.get("description","") or ""
         orgdn: str = _org_dn(oname)
 
-        # org create/update
         existing_org = org_idx.get(oname)
         if not existing_org:
             changes.append(Change(kind="organization", action="create",
@@ -157,10 +152,8 @@ def compute_plan(payload: dict, options: dict | None = None):
                                       reasons=["description farkı"]))
                 stats["organizations"]["update"] += 1
 
-        # payload’taki grup CN seti
         payload_group_cns: Set[str] = { (g.get("cn") or g.get("name")) for g in (org.get("groups") or []) if (g.get("cn") or g.get("name")) }
 
-        # group create/update
         for g in (org.get("groups") or []):
             gcn = g.get("cn") or g.get("name")
             if not gcn:
@@ -185,18 +178,15 @@ def compute_plan(payload: dict, options: dict | None = None):
                                           reasons=["description farkı"]))
                     stats["groups"]["update"] += 1
 
-        # org'un ilk grupları (payload & mevcut)
         first_payload_group_cn = _first(org.get("groups") or [], "cn")
         first_existing_group_cn = None
         if existing_org:
             ex_groups = existing_org.get("groups") or []
             first_existing_group_cn = _first(ex_groups, "name")
 
-        # users
         for u in (org.get("users") or []):
             uid = u["uid"]
 
-            # primaryGroup normalizasyonu
             primary_in = u.get("primaryGroup")
             primary_cn = _cn_from_cn_or_dn(primary_in) if primary_in else None
 
@@ -222,7 +212,6 @@ def compute_plan(payload: dict, options: dict | None = None):
                 blockers.append({"kind":"user","uid":uid,"reason":"ebeveyn belirlenemedi (grup yok)"})
                 continue
 
-            # parent grup var mı?
             if parent_dn.lower().startswith("cn="):
                 gcn = _cn_from_cn_or_dn(parent_dn.split(",",1)[0])
                 group_exists_now = (oname, gcn) in grp_idx if gcn else False
@@ -309,7 +298,6 @@ def compute_plan(payload: dict, options: dict | None = None):
 
     return changes, stats, blockers, warnings
 
-# ---------------- apply ----------------
 def _diff_to_update_kwargs(diff: dict) -> dict:
     data = {}
     for k, ch in (diff or {}).items():

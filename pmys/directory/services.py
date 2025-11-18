@@ -9,11 +9,10 @@ import base64, os, hashlib
 CFG = settings.LDAP_API
 BASE_DN = CFG["BASE_DN"]
 ORG_BASE_OU = CFG.get("ORG_BASE_OU") or ""
-GROUP_SCHEMA = CFG["GROUP_SCHEMA"]          # "groupOfNames" | "posixGroup" | "both"
-LOCK_METHOD = CFG["LOCK_METHOD"]            # "ppolicy" | "shadow"
+GROUP_SCHEMA = CFG["GROUP_SCHEMA"]         
+LOCK_METHOD = CFG["LOCK_METHOD"]            
 SEED_MEMBER_DN = CFG.get("BIND_DN")
 
-# ---------------- DN helpers ----------------
 def domain_base() -> str:
     return BASE_DN
 
@@ -41,7 +40,6 @@ def _attr(entry, key, default=None):
     except Exception:
         return default
 
-# ---------------- Tree loader ----------------
 def load_tree() -> Dict:
     from ldap3.utils.dn import parse_dn
     with ldap_conn() as c:
@@ -152,7 +150,6 @@ def _is_locked(user_entry) -> bool:
         pass
     return False
 
-# ---------------- Org CRUD ----------------
 def create_organization(name: str, description: str="") -> str:
     dn = org_dn(name)
     with ldap_conn() as c:
@@ -183,7 +180,6 @@ def delete_organization(dn: str):
         if not c.delete(dn):
             raise ValueError(c.result)
 
-# ---------------- Group CRUD ----------------
 def _next_number(attr_name: str, base: str) -> int:
     with ldap_conn() as c:
         if attr_name == "uidNumber":
@@ -263,7 +259,6 @@ def delete_group(dn: str):
         if not c.delete(dn):
             raise ValueError(c.result)
 
-# ---------------- Membership ----------------
 def _group_state(group_dn_str):
     with ldap_conn() as c:
         ok = c.search(
@@ -296,7 +291,6 @@ def add_membership(user_dn_str: str, group_dn_str: str, uid: Optional[str]=None)
                 raise ValueError(c.result)
 
             if SEED_MEMBER_DN and SEED_MEMBER_DN in (members or []):
-                # seed cleanup
                 e2, _, members2, _ = _group_state(group_dn_str)
                 mems = set(members2 or [])
                 if len(mems) >= 2 and SEED_MEMBER_DN in mems:
@@ -323,7 +317,6 @@ def remove_membership(user_dn_str: str, group_dn_str: str, uid: Optional[str]=No
             if uid in (member_uids or []):
                 c.modify(group_dn_str, {"memberUid": [(DELETE, [uid])]})
 
-# ---------------- Users ----------------
 def suggest_ids(org_dn_str: str, group_dn_str: Optional[str] = None) -> Dict[str, int]:
     uid_next = _next_number("uidNumber", org_dn_str)
 

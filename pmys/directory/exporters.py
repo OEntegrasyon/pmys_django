@@ -145,14 +145,10 @@ def _setup_pdf_doc(buffer):
        - Unicode için TTF font register eder (örn. DejaVuSans).
        - Gerekli stil isimlerini garanti eder (Title, Body, Heading1, Heading2, Code).
     """
-    # 1) register a Unicode TTF font (try project static path, then system path, fallback)
-    # Adjust these paths according to where you put the TTF file.
+
     ttfont_candidates = [
-        # Project-local font (put DejaVuSans.ttf into <project>/static/fonts/)
         os.path.join(settings.BASE_DIR, "static", "fonts", "DejaVuSans.ttf"),
-        # Common system path on Debian/Ubuntu
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        # Another common location
         "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
     ]
 
@@ -164,44 +160,36 @@ def _setup_pdf_doc(buffer):
                 registered_font_name = "DejaVuSans"
                 break
         except Exception:
-            # ignore and try next
             registered_font_name = None
 
-    # If registration failed, try to use a built-in font name (may not support Turkish)
     if not registered_font_name:
-        # As fallback, try to register any available font via ReportLab search
-        # But if no TTF is available, we still proceed — user will see missing chars.
+
         try:
-            # Try system font lookup (best effort)
             pdfmetrics.registerFont(TTFont("DejaVuSans", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"))
             registered_font_name = "DejaVuSans"
         except Exception:
             registered_font_name = None
 
-    # 2) Doc and stylesheet
     doc = SimpleDocTemplate(buffer, pagesize=A4,
                             rightMargin=inch, leftMargin=inch,
                             topMargin=inch, bottomMargin=inch)
     styles = getSampleStyleSheet()
 
-    # helper: add or update style by name (idempotent)
     def ensure_style(name, **kwargs):
         try:
             if name in styles:
-                # update only provided attributes
                 st = styles[name]
                 for k, v in kwargs.items():
                     setattr(st, k, v)
             else:
                 styles.add(ParagraphStyle(name=name, **kwargs))
         except Exception:
-            # if any unexpected error, fallback quietly
             try:
                 styles.add(ParagraphStyle(name=name, **kwargs))
             except Exception:
                 pass
 
-    base_font = registered_font_name or "Helvetica"  # fallback
+    base_font = registered_font_name or "Helvetica"  
 
     ensure_style('Title',
                  fontName=base_font,

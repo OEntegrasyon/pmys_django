@@ -7,7 +7,6 @@ class LapsConfig(AppConfig):
     _threads_started = False
 
     def ready(self):
-        # runserver reloader koruması
         if os.environ.get("RUN_MAIN") != "true":
             return
         if self._threads_started:
@@ -42,7 +41,6 @@ class LapsConfig(AppConfig):
             def cb(chx, method, props, body):
                 try:
                     payload = json.loads(body.decode() if isinstance(body, (bytes, bytearray)) else body)
-                    # payload: {"uuid","ok", "account","password","expires_at", "error"?}
                     upsert_secret_from_agent(payload)
                 except Exception:
                     pass

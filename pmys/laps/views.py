@@ -18,14 +18,12 @@ from .serializers import (
 from .models import LapsAccessGrant, LapsAccessLog, LapsPolicy, LapsAssignment
 from . import services as svc
 
-# -------- Clients (liste) --------
 class ClientsListView(APIView):
     def get(self, request):
         qs = Client.objects.all().order_by("hostname")
         data = ClientLiteSerializer(qs, many=True).data
         return Response(data)
 
-# -------- Secret (tekli) --------
 class ClientSecretByKeyView(APIView):
     def get(self, request, key: str):
         autogen = request.query_params.get("autogen")
@@ -34,7 +32,6 @@ class ClientSecretByKeyView(APIView):
         ctx = {}
         if grant_token:
             try:
-                # === FIX: transaction içinde FOR UPDATE kilidi al ===
                 with transaction.atomic():
                     g = (LapsAccessGrant.objects
                          .select_for_update()
@@ -48,11 +45,9 @@ class ClientSecretByKeyView(APIView):
                     if c.id != g.client_id:
                         return Response({"detail": "Grant bu istemci için değil."}, status=403)
 
-                    # Tek-kullanımlık işaretle (aynı tx içinde)
                     g.used_at = djtz.now()
                     g.save(update_fields=["used_at"])
 
-                    # Log context'i topla
                     ctx = {
                         "actor": g.actor, "reason": g.reason, "ticket": g.ticket,
                         "ip": g.ip, "ua": g.user_agent,
@@ -82,7 +77,6 @@ class ClientSecretByKeyView(APIView):
             return Response({"detail": str(e)}, status=404)
 
 
-# -------- Rotate (tekli) --------
 class ClientRotateByKeyView(APIView):
     def post(self, request, key: str):
         user = request.user.username if getattr(request.user, "is_authenticated", False) else ""
@@ -92,7 +86,6 @@ class ClientRotateByKeyView(APIView):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-# -------- Bulk rotate --------
 class ClientsBulkRotateView(APIView):
     """
     POST body: { "keys": [...] }
@@ -105,7 +98,6 @@ class ClientsBulkRotateView(APIView):
         ok, errors = svc.bulk_rotate_by_keys(keys, by=user)
         return Response({"ok": ok, "errors": errors}, status=200 if ok else 400)
 
-# -------- History (yalın) --------
 class ClientHistoryByKeyView(APIView):
     def get(self, request, key: str):
         try:
@@ -113,7 +105,6 @@ class ClientHistoryByKeyView(APIView):
         except Exception as e:
             return Response({"detail": str(e)}, status=404)
 
-# -------- Policies CRUD --------
 class PolicyViewSet(viewsets.ModelViewSet):
     queryset = LapsPolicy.objects.all().order_by("name")
     serializer_class = LapsPolicySerializer
@@ -121,9 +112,8 @@ class PolicyViewSet(viewsets.ModelViewSet):
 
 
 
-# -------- Extra: accounts/effective-policy/assignments --------
 @api_view(["GET"])
-@permission_classes([AllowAny])   # <— önce IsAuthenticated idi
+@permission_classes([AllowAny])  
 def client_accounts(request, key: str):
     try:
         c = svc._get_client_by_key(key)
@@ -133,7 +123,6 @@ def client_accounts(request, key: str):
 
     qs = LapsAssignment.objects.filter(enabled=True).filter(
         Q(target_type="client", target_id=uuid)
-        # ileride group/org eklenir
     )
 
     names = []
@@ -149,7 +138,7 @@ def client_accounts(request, key: str):
     return Response(out)
 
 @api_view(["GET"])
-@permission_classes([AllowAny])   # <— yeni uç
+@permission_classes([AllowAny])  
 def client_effective_policy(request, key: str):
     try:
         c = svc._get_client_by_key(key)
@@ -162,7 +151,7 @@ def client_effective_policy(request, key: str):
     return Response({"source": None, "policy": None})
 
 @api_view(["POST"])
-@permission_classes([AllowAny])   # <— önce IsAuthenticated idi
+@permission_classes([AllowAny]) 
 def create_assignment(request):
     ser = LapsAssignmentSerializer(data=request.data)
     if not ser.is_valid():
@@ -186,17 +175,16 @@ def delete_assignment(request, pk: int):
         raise Http404
 
 class LogsListView(APIView):
-    permission_classes = [AllowAny]  # prod'da IsAuthenticated
+    permission_classes = [AllowAny]  
 
     def get(self, request):
         qs = (LapsAccessLog.objects
               .select_related("client", "secret")
               .order_by("-created_at"))
 
-        # --- Filtreler ---
-        q = request.query_params.get("q")               # hostname/uuid/requested_by/result/account
-        action = request.query_params.get("action")     # rotate/view/report/bulk_rotate/error
-        client = request.query_params.get("client")     # id | uuid | hostname
+        q = request.query_params.get("q")              
+        action = request.query_params.get("action")     
+        client = request.query_params.get("client")     
         date_from = request.query_params.get("date_from")
         date_to = request.query_params.get("date_to")
 
@@ -213,14 +201,11 @@ class LogsListView(APIView):
             qs = qs.filter(action=action)
 
         if client:
-            # client=id
             try:
                 qs = qs.filter(client_id=int(client))
             except ValueError:
-                # uuid veya hostname
                 qs = qs.filter(Q(client__uuid=client) | Q(client__hostname__iexact=client))
 
-        # tarih aralığı (ISO 8601 veya "YYYY-MM-DD")
         def _to_dt(s):
             if not s: return None
             dt = parse_datetime(s)
@@ -239,7 +224,6 @@ class LogsListView(APIView):
         if dt_to:
             qs = qs.filter(created_at__lte=dt_to)
 
-        # --- Sayfalama ---
         try:
             page = max(1, int(request.query_params.get("page", 1)))
         except ValueError:
@@ -262,13 +246,13 @@ class LogsListView(APIView):
         })
     
 class GrantCreateView(APIView):
-    permission_classes = [AllowAny]  # prod: IsAuthenticated
+    permission_classes = [AllowAny]  
 
     def post(self, request):
-        key = request.data.get("client")  # id | uuid | hostname
+        key = request.data.get("client")  
         reason = (request.data.get("reason") or "").strip()
         ticket = (request.data.get("ticket") or "").strip()
-        ttl = int(request.data.get("ttl") or 60)  # saniye
+        ttl = int(request.data.get("ttl") or 60)  
 
         if len(reason) < 8:
             return Response({"detail":"Gerekçe en az 8 karakter olmalı."}, status=400)

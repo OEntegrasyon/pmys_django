@@ -25,9 +25,7 @@ class PolicyLogViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PolicyLogSerializer
 
 class ClientPolicyLogViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Sadece istemci bazlı (source='client') politika sonuç loglarını döndürür.
-    """
+
     queryset = PolicyLog.objects.filter(
         details__source='client'
     ).order_by('-timestamp')

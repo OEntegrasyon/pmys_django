@@ -23,11 +23,9 @@ def resolve_policy_and_account_for_client(client: Client) -> Tuple[Optional[Laps
         acc = a.account_name_override or pol.account_name or "Administrator"
         return pol, acc
 
-    # fallback: eski mantık
     pol = resolve_policy_for_client(client)
     return pol, (pol.account_name if pol else "Administrator")
 
-# -------- password generator (server-side) --------
 def generate_password(length=16, use_upper=True, use_lower=True, use_digits=True, use_symbols=True) -> str:
     pools = []
     if use_upper:  pools.append(string.ascii_uppercase)
@@ -44,7 +42,6 @@ def generate_password(length=16, use_upper=True, use_lower=True, use_digits=True
 def resolve_policy_for_client(client: Client) -> Optional[LapsPolicy]:
     return LapsPolicy.objects.filter(disabled=False).order_by("-id").first()
 
-# -------- MQ publisher --------
 def publish_laps_command(payload: Dict):
     """
     payload:
@@ -75,13 +72,11 @@ def publish_laps_command(payload: Dict):
     )
     conn.close()
 
-# -------- rotate: server generate + agent apply --------
 @transaction.atomic
 def rotate_now(client_id: int, by: str = "") -> Tuple[LapsSecret, str]:
     client = Client.objects.select_for_update().get(id=client_id)
     policy, account = resolve_policy_and_account_for_client(client)
 
-    # mevcut secret ve history
     try:
         secret = LapsSecret.objects.select_for_update().get(client=client, account_name=account)
         if secret.password_encrypted:
@@ -94,7 +89,6 @@ def rotate_now(client_id: int, by: str = "") -> Tuple[LapsSecret, str]:
         secret = LapsSecret(client=client, account_name=account)
         version = 1
 
-    # parola üret
     pwd = generate_password(
         length=(policy.length if policy else 16),
         use_upper=(policy.use_upper if policy else True),
@@ -103,7 +97,6 @@ def rotate_now(client_id: int, by: str = "") -> Tuple[LapsSecret, str]:
         use_symbols=(policy.use_symbols if policy else True),
     )
 
-    # kaydet (DB)
     secret.password_encrypted = enc(pwd)
     secret.version = version
     secret.last_rotated_at = djtz.now()
@@ -111,7 +104,6 @@ def rotate_now(client_id: int, by: str = "") -> Tuple[LapsSecret, str]:
     secret.policy = policy
     secret.save()
 
-    # history prune
     keep = (policy.history_keep if policy else 10)
     if keep >= 0:
         qs = LapsSecretHistory.objects.filter(client=client, account_name=account).order_by("-rotated_at", "-version")
@@ -119,7 +111,6 @@ def rotate_now(client_id: int, by: str = "") -> Tuple[LapsSecret, str]:
         if len(ids) > keep:
             LapsSecretHistory.objects.filter(id__in=ids[keep:]).delete()
 
-    # ajana gönder
     publish_laps_command({
         "action": "set_local_admin_password",
         "uuid": client.uuid,
@@ -134,7 +125,6 @@ def rotate_now(client_id: int, by: str = "") -> Tuple[LapsSecret, str]:
             "enabled": bool(policy and policy.rename_admin and policy.rename_admin_to),
             "new_name": (policy.rename_admin_to if (policy and policy.rename_admin and policy.rename_admin_to) else ""),
         },
-        # opsiyonel olarak policy'yi de ekliyoruz; ajan kendi üretmek isterse kullansın
         "policy": {
             "length": policy.length if policy else 16,
             "use_upper": policy.use_upper if policy else True,
@@ -149,7 +139,6 @@ def rotate_now(client_id: int, by: str = "") -> Tuple[LapsSecret, str]:
     LapsAccessLog.objects.create(client=client, secret=secret, action="rotate", requested_by=by, result="ok")
     return secret, pwd
 
-# -------- agent → server report path --------
 def upsert_secret_from_agent(report: Dict):
     uuid = report.get("uuid")
     if not uuid:
@@ -189,7 +178,6 @@ def upsert_secret_from_agent(report: Dict):
             secret.expires_at = expires_dt
         secret.save()
 
-    # policy'ye göre prune
     pol = resolve_policy_for_client(client)
     keep = (pol.history_keep if pol else 10)
     if keep >= 0:
@@ -203,7 +191,6 @@ def upsert_secret_from_agent(report: Dict):
         result=("ok" if ok else (report.get("error") or "agent-error"))
     )
 
-# -------- reads & helpers --------
 def safe_account_for(client: Client) -> str:
     pol = resolve_policy_for_client(client)
     return pol.account_name if pol else "Administrator"
@@ -222,7 +209,6 @@ def get_secret_for_client(client_id: int, context: Optional[Dict[str, Any]] = No
     now = djtz.now()
     expires_in = int((s.expires_at - now).total_seconds()) if s.expires_at else None
 
-    # LOG: view + zengin alanlar
     LapsAccessLog.objects.create(
         client=client,
         secret=s,

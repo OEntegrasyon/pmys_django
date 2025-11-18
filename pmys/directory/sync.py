@@ -5,11 +5,10 @@ from django.db import transaction
 from .ldap_client import ldap_conn
 from .models import LdapOrganization, LdapGroup, LdapUser
 from user.models import User,Group,Organization
-from .services import load_tree  # yukarıdaki load_tree fonksiyonun bulunduğu modül
+from .services import load_tree  
 
 logger = logging.getLogger(__name__)
 
-# ------------------ Sync fonksiyonları ------------------
 
 @transaction.atomic
 def sync_organizations() -> Tuple[int,int]:
@@ -40,7 +39,7 @@ def sync_groups() -> Tuple[int,int]:
     existing = {g.name: g for g in Group.objects.select_related("organization").all()}
     orgs = {o.name: o for o in Organization.objects.all()}
 
-    inserted_names = set()  # <--- yeni eklendi
+    inserted_names = set()  
 
     for org_data in tree["organizations"]:
         org = orgs.get(org_data["name"])
@@ -66,7 +65,7 @@ def sync_groups() -> Tuple[int,int]:
             else:
                 Group.objects.create(name=name, description=desc, organization=org)
                 created += 1
-                inserted_names.add(name)  # <--- ekle
+                inserted_names.add(name)  
 
     logger.info("sync_groups: created=%d updated=%d", created, updated)
     return created, updated
@@ -119,7 +118,7 @@ def sync_users() -> Tuple[int,int,int]:
                 )
                 created += 1
 
-            # Grup üyeliği
+            
             for gname, gobj in groups_map.items():
                 if gname in user_groups:
                     if not gobj.users.filter(id=user.id).exists():
@@ -132,7 +131,6 @@ def sync_users() -> Tuple[int,int,int]:
     logger.info("sync_users: created=%d updated=%d linked=%d", created, updated, linked)
     return created, updated, linked
 
-# ------------------ Full sync ------------------
 
 def full_sync() -> Dict[str, Tuple[int,int,int]]:
     r = {}

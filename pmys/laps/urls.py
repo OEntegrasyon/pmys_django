@@ -17,7 +17,6 @@ urlpatterns = [
     path('clients/<str:key>/history/', ClientHistoryByKeyView.as_view()),
     path('clients/bulk-rotate/', ClientsBulkRotateView.as_view()),
 
-    # extra
     path('clients/<str:key>/accounts/', client_accounts),
     path('clients/<str:key>/effective-policy/', client_effective_policy),
     path('assignments/', create_assignment),        
