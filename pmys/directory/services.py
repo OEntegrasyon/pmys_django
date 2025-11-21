@@ -439,18 +439,30 @@ def create_user_at_dn(dn: str, data: Dict, org_dn_str: Optional[str] = None) -> 
 
 def update_user(dn: str, data: Dict):
     changes = {}
+    
     def put(attr, val):
-        if val is not None:
+        if val is None:
+            return
+        
+        if isinstance(val, str) and val.strip() == "":
+            changes[attr] = [(REPLACE, [])]
+        else:
             changes[attr] = [(REPLACE, [val])]
+
     put("givenName", data.get("givenName"))
     put("sn", data.get("sn"))
-    cn = (f"{data.get('givenName','')} {data.get('sn','')}".strip() or None)
-    if cn: put("cn", cn)
+    
+    cn_val = (f"{data.get('givenName','')} {data.get('sn','')}".strip())
+    if cn_val:
+        put("cn", cn_val)
+    
     put("mail", data.get("mail"))
     put("telephoneNumber", data.get("phone"))
+    
     user_password = data.get("userPassword")
     if user_password:
-        put("userPassword", _hash_ssha(user_password))
+        changes["userPassword"] = [(REPLACE, [_hash_ssha(user_password)])]
+
     if data.get("uidNumber") is not None: put("uidNumber", str(data["uidNumber"]))
     if data.get("gidNumber") is not None: put("gidNumber", str(data["gidNumber"]))
     put("homeDirectory", data.get("homeDirectory"))
@@ -459,8 +471,11 @@ def update_user(dn: str, data: Dict):
     if changes:
         with ldap_conn() as c:
             if not c.modify(dn, changes):
-                raise ValueError(c.result)
-
+                if c.result['result'] == 16:
+                    pass 
+                else:
+                    raise ValueError(c.result)
+                
 def delete_user(dn: str):
     with ldap_conn() as c:
         if not c.delete(dn):

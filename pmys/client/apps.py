@@ -205,11 +205,10 @@ class ClientConfig(AppConfig):
         connection.close()
 
 def log_client_policy_assignment(sender, instance, action, pk_set, **kwargs):
-
-    from .models import ClientLog, Client
-    from policy.models import Policy
-
-    if not isinstance(instance, Client):
+    """
+    İstemciye politika atandığında veya kaldırıldığında log tutar.
+    """
+    if instance._meta.model_name != 'client':
         return
 
     if getattr(instance, '_m2m_signal_running', False):
@@ -217,9 +216,18 @@ def log_client_policy_assignment(sender, instance, action, pk_set, **kwargs):
     
     setattr(instance, '_m2m_signal_running', True)
 
+    from .models import ClientLog
+    from policy.models import Policy
+    from django.apps import apps
+
     try:
+        if not pk_set:
+            return
+
         if action == "post_add":
             policies = Policy.objects.filter(pk__in=pk_set)
+            print(f"SİNYAL TETİKLENDİ (Ekleme): {len(policies)} adet.")
+            
             for policy in policies:
                 ClientLog.objects.create(
                     client=instance, 
@@ -227,12 +235,21 @@ def log_client_policy_assignment(sender, instance, action, pk_set, **kwargs):
                     details={
                         "policy_id": policy.id,
                         "policy_name": policy.name,
-                        "policy_type": policy.policy_type.name,
+                        "policy_type": getattr(policy.policy_type, 'name', 'Unknown'),
                         "message": f"'{policy.name}' politikası istemciye atandı."
                     }
                 )
+            
+            try:
+                client_config = apps.get_app_config('client')
+                client_config.publish_policies(user=None, client=instance)
+            except Exception as e:
+                print(f"RabbitMQ Hatası: {e}")
+
         elif action == "post_remove":
             policies = Policy.objects.filter(pk__in=pk_set)
+            print(f"SİNYAL TETİKLENDİ (Silme): {len(policies)} adet.")
+
             for policy in policies:
                 ClientLog.objects.create(
                     client=instance,
@@ -243,5 +260,14 @@ def log_client_policy_assignment(sender, instance, action, pk_set, **kwargs):
                         "message": f"'{policy.name}' politikası istemciden kaldırıldı."
                     }
                 )
+            
+            try:
+                client_config = apps.get_app_config('client')
+                client_config.publish_policies(user=None, client=instance)
+            except Exception as e:
+                print(f"RabbitMQ Hatası: {e}")
+
+    except Exception as e:
+        print(f"SİNYAL HATASI: {str(e)}")
     finally:
         delattr(instance, '_m2m_signal_running')
